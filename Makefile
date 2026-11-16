@@ -30,7 +30,7 @@ GLFW_OBJECTS := $(addprefix build/make-obj/glfw/,$(addsuffix .o,$(GLFW_UNITS)))
 OBJECTS := $(APP_OBJECTS) $(GLFW_OBJECTS)
 SHADERS := $(patsubst shaders/%,build/shaders/%,$(wildcard shaders/*.vert shaders/*.frag))
 
-.PHONY: all run clean smoke-test
+.PHONY: all run clean smoke-test test benchmark
 all: build/server_room.exe $(SHADERS)
 
 build/server_room.exe: $(OBJECTS) Makefile
@@ -50,10 +50,26 @@ build/shaders/%: shaders/% | build/shaders
 	copy /Y "$(subst /,\,$<)" "$(subst /,\,$@)" >nul
 
 run: all
-	.\build\server_room.exe
+	.\build\server_room.exe $(ARGS)
 
 smoke-test: all
 	.\build\server_room.exe --smoke-test
+	.\build\server_room.exe --smoke-test --scenario alarm
+	.\build\server_room.exe --smoke-test --scenario doors
+	.\build\server_room.exe --smoke-test --scenario fog
+	.\build\server_room.exe --smoke-test --scenario monitor
+
+build/scene_tests.exe: tests/SceneTests.cpp src/scene/Room.cpp src/app/Options.cpp $(wildcard include/server_room/*/*.hpp) Makefile | build/make-obj/scene
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) tests/SceneTests.cpp src/scene/Room.cpp src/app/Options.cpp -static -o "$@"
+
+test: build/scene_tests.exe
+	.\build\scene_tests.exe
+
+benchmark: all
+	.\build\server_room.exe --benchmark
+	.\build\server_room.exe --benchmark --scenario alarm
+	.\build\server_room.exe --benchmark --scenario fog
+	.\build\server_room.exe --benchmark --scenario monitor
 
 clean:
 	@if exist build rmdir /S /Q build
