@@ -24,6 +24,24 @@ inline float radians(float degrees) { return degrees * 0.01745329252f; }
 // Column-major matrices, matching GLSL's default layout.
 struct Mat4 { float data[16] = {}; };
 
+inline Mat4 operator*(const Mat4& a, const Mat4& b) {
+    Mat4 m;
+    for (int c=0;c<4;++c) for(int r=0;r<4;++r)
+        for(int k=0;k<4;++k) m.data[c*4+r] += a.data[k*4+r]*b.data[c*4+k];
+    return m;
+}
+inline Vec3 transformPoint(const Mat4& m, Vec3 p) {
+    return {m.data[0]*p.x+m.data[4]*p.y+m.data[8]*p.z+m.data[12],
+            m.data[1]*p.x+m.data[5]*p.y+m.data[9]*p.z+m.data[13],
+            m.data[2]*p.x+m.data[6]*p.y+m.data[10]*p.z+m.data[14]};
+}
+inline Mat4 rotationY(float angle) {
+    Mat4 m;
+    m.data[0]=m.data[10]=std::cos(angle); m.data[5]=m.data[15]=1;
+    m.data[2]=-std::sin(angle); m.data[8]=std::sin(angle);
+    return m;
+}
+
 inline Mat4 modelMatrix(Vec3 center, Vec3 size) {
     Mat4 m;
     m.data[0] = size.x; m.data[5] = size.y; m.data[10] = size.z;
@@ -54,4 +72,4 @@ inline Mat4 lookAt(Vec3 eye, Vec3 direction) {
     return m;
 }
 
-}
+} // namespace server_room
