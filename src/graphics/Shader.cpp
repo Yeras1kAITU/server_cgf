@@ -59,4 +59,7 @@ void Shader::vector(const char* name, Vec3 v) const {
 void Shader::scalar(const char* name, float v) const {
     glUniform1f(glGetUniformLocation(program_, name), v);
 }
+void Shader::integer(const char* name, int v) const {
+    glUniform1i(glGetUniformLocation(program_, name), v);
+}
 } // namespace server_room

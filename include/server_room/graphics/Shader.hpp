@@ -16,6 +16,7 @@ public:
     void matrix(const char* name, const Mat4& value) const;
     void vector(const char* name, Vec3 value) const;
     void scalar(const char* name, float value) const;
+    void integer(const char* name, int value) const;
 private:
     GLuint program_ = 0;
 };
